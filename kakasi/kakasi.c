@@ -37,7 +37,7 @@
 //int EucToUtf(char *str);
 int convert(char const *src,
             char const *dest,
-            char const *text,
+            char *text,
             char *buf,
             size_t bufsize);
 //char* ExeKakasi(char *srcStr, char *option[]);
@@ -124,7 +124,7 @@ PHP_FUNCTION(KAKASI_MORPHEME){
     if(ret == 0)
     {
         // kakasiを実行
-        words_euc = kakasi_do(&srcstr_euc);
+        words_euc = kakasi_do(srcstr_euc);
         convert("EUC-JP","UTF-8",words_euc,words,MYBUFSZ);
 
         // 返却するzvalの定義
@@ -398,19 +398,17 @@ int ExeKakasi(char  *srcStr,
     if(ret == 0)
     {
         // kakasiを実行
-        res = kakasi_do(&buf);
-        if(buf)
-        {
-            convert("EUC-JP","UTF-8",res,dstStr,dststrsize);
-            return 0;
-        }
+        res = kakasi_do(buf);
+        convert("EUC-JP","UTF-8",res,dstStr,dststrsize);
+        return 0;
     }
+    return -1;
 }
 
 
 int convert(char const *src,
             char const *dest,
-            char const *text,
+            char *text,
             char *buf,
             size_t bufsize)
 {
