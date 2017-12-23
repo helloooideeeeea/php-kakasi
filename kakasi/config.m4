@@ -17,6 +17,9 @@ dnl PHP_ARG_ENABLE(kakasi, whether to enable kakasi support,
 dnl Make sure that the comment is aligned:
 dnl [  --enable-kakasi           Enable kakasi support])
 
+CC=/usr/bin/gcc
+CFLAGS="-O3 -lkakasi"
+
 if test "$PHP_KAKASI" != "no"; then
   dnl Write more examples of tests here...
 
