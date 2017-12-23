@@ -129,7 +129,6 @@ PHP_FUNCTION(KAKASI_MORPHEME){
 
         // 返却するzvalの定義
         zval *return_array;
-        MAKE_STD_ZVAL(return_array);
         if(array_init(return_array) != SUCCESS){}
 
         // 文字の分割
@@ -170,7 +169,6 @@ PHP_FUNCTION(KAKASI_CONVERT){
 
     // 返却オブジェクトの生成
     zval *wordset;
-    MAKE_STD_ZVAL(wordset);
     if(object_init(wordset) != SUCCESS){}
 
     add_property_stringl(wordset,"base",str,strlen(str));
