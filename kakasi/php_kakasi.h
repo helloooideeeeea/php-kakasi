@@ -74,14 +74,5 @@ PHP_RINIT_FUNCTION(kakasi);
 PHP_RSHUTDOWN_FUNCTION(kakasi);
 PHP_MINFO_FUNCTION(kakasi);
 
-PHP_FUNCTION(confirm_kakasi_compiled);	/* For testing, remove later. */
-
-PHP_FUNCTION(kakasi);
-PHP_METHOD(kakasi, reproc);
-PHP_METHOD(kakasi, morpheme);
-PHP_FUNCTION(KAKASI_MORPHEME);
 PHP_FUNCTION(KAKASI_CONVERT);
-//PHP_METHOD(kakasi, hira);
-//PHP_METHOD(kakasi, alph);
-//PHP_METHOD(kakasi, kata);
 static zend_class_entry *kakasi_ce;

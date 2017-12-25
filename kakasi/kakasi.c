@@ -30,6 +30,7 @@
 #include <libkakasi.h>
 #include <iconv.h>
 #include <string.h>
+#include <stdio.h>
 
 #define MYBUFSZ 1024
 
@@ -98,87 +99,29 @@ PHP_FUNCTION(confirm_kakasi_compiled)
  * vim<600: noet sw=4 ts=4
  */
 
-PHP_FUNCTION(kakasi){
-    return;
-}
-
-PHP_FUNCTION(KAKASI_MORPHEME){
-
-    // 定義
-    char srcstr_euc[MYBUFSZ], words[MYBUFSZ];
-    char *words_euc,*separated_word, *srcstr;
-    int  ret, str_len;
-
-    // 引数の取得
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-                              "s", &srcstr, &str_len) == FAILURE) {
-        return;
-    }
-
-    // EUCに変換
-    convert("UTF-8","EUC-JP",srcstr,srcstr_euc, MYBUFSZ);
-
-    // kakasiのオプションを設定
-    ret = kakasi_getopt_argv(2, (char* []){"kakasi","-w"});
-
-    if(ret == 0)
-    {
-        // kakasiを実行
-        words_euc = kakasi_do(srcstr_euc);
-        convert("EUC-JP","UTF-8",words_euc,words,MYBUFSZ);
-
-        // 返却するzvalの定義
-        zval *return_array;
-        if(array_init(return_array) != SUCCESS){}
-
-        // 文字の分割
-        separated_word = strtok( words, " " );
-        while( separated_word != NULL ){
-            add_next_index_stringl(return_array,separated_word,strlen(separated_word));
-            separated_word= strtok( NULL, " " );  /* 2回目以降 */
-        }
-
-        // 配列を返却
-        *return_value = *return_array;
-        zval_copy_ctor(return_value);
-    }
-    return;
-}
-
 PHP_FUNCTION(KAKASI_CONVERT){
 
-    int   str_len;
-    char *str;
+    size_t  str_len;
+    char *str = NULL;
     char  hira[MYBUFSZ], kata[MYBUFSZ], alph[MYBUFSZ];
 
     // 引数の取得
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-                              "s", &str, &str_len) == FAILURE) {
+    if (zend_parse_parameters(ZEND_NUM_ARGS(), "s", &str, &str_len) == FAILURE) {
         return;
     }
 
     // ひらがな
     ToHira(str, hira);
-
     // カタカナ
     ToKata(str, kata);
-
     // alphabet
     ToAlph(str, alph);
 
-
-    // 返却オブジェクトの生成
-    zval *wordset;
-    if(object_init(wordset) != SUCCESS){}
-
-    add_property_stringl(wordset,"base",str,strlen(str));
-    add_property_stringl(wordset,"hira",hira,strlen(hira));
-    add_property_stringl(wordset,"kata",kata,strlen(kata));
-    add_property_stringl(wordset,"alph",alph,strlen(alph));
-
-    // オブジェクトの返却
-    *return_value = *wordset;
-    zval_copy_ctor(return_value);
+    array_init(return_value);
+    add_assoc_string(return_value, "base", str);
+    add_assoc_string(return_value, "hira", hira);
+    add_assoc_string(return_value, "kata", kata);
+    add_assoc_string(return_value, "alph", alph);
 
     return;
 }
@@ -254,8 +197,6 @@ PHP_MINFO_FUNCTION(kakasi)
  */
 const zend_function_entry kakasi_functions[] = {
 	PHP_FE(confirm_kakasi_compiled,	NULL)		/* For testing, remove later. */
-    PHP_FE(kakasi, NULL)
-    PHP_FE(KAKASI_MORPHEME, NULL)
     PHP_FE(KAKASI_CONVERT, NULL)
     PHP_FE_END	/* Must be the last line in kakasi_functions[] */
 };
@@ -273,19 +214,6 @@ PHP_MINIT_FUNCTION(kakasi)
     //INIT_CLASS_ENTRY(ce, "KAKASI", kakasi_functions);
     INIT_CLASS_ENTRY(ce, "KAKASI_CONVERT", kakasi_functions);
     kakasi_ce = zend_register_internal_class(&ce);
-    //zend_declare_property_string(kakasi_ce,
-    //					 					"word", strlen("word"),
-    //										"test", ZEND_ACC_PUBLIC);
-    zend_declare_property_string(kakasi_ce,
-                                 "hira", strlen("hira"),
-                                 "", ZEND_ACC_PUBLIC);
-    zend_declare_property_string(kakasi_ce,
-                                 "kata", strlen("kata"),
-                                 "", ZEND_ACC_PUBLIC);
-    zend_declare_property_string(kakasi_ce,
-                                 "alph", strlen("alph"),
-                                 "", ZEND_ACC_PUBLIC);
-
 
     return SUCCESS;
 }
@@ -316,6 +244,7 @@ zend_module_entry kakasi_module_entry = {
 
 void ToHira(char *WORD, char *RETURN){
 
+    puts(WORD);
     char *optionJH[] = { "kakasi", "-JH"};
     char *optionKH[] = { "kakasi", "-KH"};
 
@@ -323,10 +252,8 @@ void ToHira(char *WORD, char *RETURN){
     char resKH[MYBUFSZ];
     char resHK[MYBUFSZ];
 
-
     // J -> H
     ExeKakasi(WORD, optionJH, resJH, MYBUFSZ);
-
 
     // H -> K
     ExeKakasi(resJH, optionKH, RETURN, MYBUFSZ);
@@ -404,6 +331,7 @@ int ExeKakasi(char  *srcStr,
     }
     return -1;
 }
+
 
 
 int convert(char const *src,
