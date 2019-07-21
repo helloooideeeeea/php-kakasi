@@ -23,6 +23,24 @@ CFLAGS="-O3 -lkakasi"
 if test "$PHP_KAKASI" != "no"; then
   dnl Write more examples of tests here...
 
+  dnl # get library FOO build options from pkg-config output
+  dnl AC_PATH_PROG(PKG_CONFIG, pkg-config, no)
+  dnl AC_MSG_CHECKING(for libfoo)
+  dnl if test -x "$PKG_CONFIG" && $PKG_CONFIG --exists foo; then
+  dnl   if $PKG_CONFIG foo --atleast-version 1.2.3; then
+  dnl     LIBFOO_CFLAGS=`$PKG_CONFIG foo --cflags`
+  dnl     LIBFOO_LIBDIR=`$PKG_CONFIG foo --libs`
+  dnl     LIBFOO_VERSON=`$PKG_CONFIG foo --modversion`
+  dnl     AC_MSG_RESULT(from pkgconfig: version $LIBFOO_VERSON)
+  dnl   else
+  dnl     AC_MSG_ERROR(system libfoo is too old: version 1.2.3 required)
+  dnl   fi
+  dnl else
+  dnl   AC_MSG_ERROR(pkg-config not found)
+  dnl fi
+  dnl PHP_EVAL_LIBLINE($LIBFOO_LIBDIR, KAKASI_SHARED_LIBADD)
+  dnl PHP_EVAL_INCLINE($LIBFOO_CFLAGS)
+
   dnl # --with-kakasi -> check with-path
   dnl SEARCH_PATH="/usr/local /usr"     # you might want to change this
   dnl SEARCH_FOR="/include/kakasi.h"  # you most likely want to change this

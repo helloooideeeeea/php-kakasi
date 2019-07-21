@@ -126,6 +126,53 @@ PHP_FUNCTION(KAKASI_CONVERT){
     return;
 }
 
+PHP_FUNCTION(KAKASI_MORPHEME){
+
+	// 定義
+    char srcstr_euc[MYBUFSZ], words[MYBUFSZ];
+    char *words_euc, *separated_word, *srcstr;
+	int  ret;
+	size_t str_len;
+
+	// 引数の取得
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "s", &srcstr, &str_len) == FAILURE) {
+		return;
+	}
+
+	// EUCに変換
+	convert("UTF-8","EUC-JP", srcstr, srcstr_euc, sizeof(srcstr_euc));
+
+	// kakasiのオプションを設定
+	ret = kakasi_getopt_argv(2, (char* []){"kakasi","-w"});
+
+	zval return_array;
+    zval *return_pArray;
+
+	if(ret == 0)
+	{
+		// kakasiを実行
+		words_euc = kakasi_do(srcstr_euc);
+		convert("EUC-JP","UTF-8",words_euc,words,MYBUFSZ);
+
+        ZVAL_NEW_ARR(&return_array);
+        return_pArray = &return_array;
+
+		if(array_init(return_pArray) != SUCCESS){}
+
+		// 文字の分割
+		separated_word = strtok( words, " " );
+	    while( separated_word != NULL ){
+			add_next_index_stringl(return_pArray,separated_word,strlen(separated_word));
+		    separated_word= strtok( NULL, " " );  /* 2回目以降 */
+		}
+
+        // 配列を返却
+        *return_value = *return_pArray;
+		zval_copy_ctor(return_value);
+	}
+	return;
+}
+
 /* }}} */
 /* The previous line is meant for vim and emacs, so it can correctly fold and
    unfold functions in source code. See the corresponding marks just before
@@ -198,6 +245,7 @@ PHP_MINFO_FUNCTION(kakasi)
 const zend_function_entry kakasi_functions[] = {
 	PHP_FE(confirm_kakasi_compiled,	NULL)		/* For testing, remove later. */
     PHP_FE(KAKASI_CONVERT, NULL)
+    PHP_FE(KAKASI_MORPHEME, NULL)
     PHP_FE_END	/* Must be the last line in kakasi_functions[] */
 };
 /* }}} */
@@ -213,6 +261,7 @@ PHP_MINIT_FUNCTION(kakasi)
     zend_class_entry ce;
     //INIT_CLASS_ENTRY(ce, "KAKASI", kakasi_functions);
     INIT_CLASS_ENTRY(ce, "KAKASI_CONVERT", kakasi_functions);
+    INIT_CLASS_ENTRY(ce, "KAKASI_MORPHEME", kakasi_functions);
     kakasi_ce = zend_register_internal_class(&ce);
 
     return SUCCESS;
@@ -244,7 +293,6 @@ zend_module_entry kakasi_module_entry = {
 
 void ToHira(char *WORD, char *RETURN){
 
-    puts(WORD);
     char *optionJH[] = { "kakasi", "-JH"};
     char *optionKH[] = { "kakasi", "-KH"};
 
@@ -360,3 +408,4 @@ int convert(char const *src,
     iconv_close(cd);
     return 1;
 }
+
