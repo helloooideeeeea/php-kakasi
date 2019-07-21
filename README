@@ -1,4 +1,37 @@
-php-kakasi (build php7.1.12)
+php-kakasi For PHP 7.2
 
-see https://github.com/kokukuma/php-kakasi
-same how to use (install too)
+In the case of PHP 5.6,  see https://github.com/kokukuma/php-kakasi
+
+If you install dockerd on your computer, you can check quickly.
+
+$ git clone https://github.com/helloooideeeeea/php-kakasi.git
+
+$ cd php-kakasi
+
+$ docker build -t php -f docker/Dockerfile docker/
+
+$ docker run -it -v $(pwd):/home/ec2-user/develop/ php:latest /bin/bash
+
+[ec2-user@xxxxxxx ~]$ cd develop
+
+[ec2-user@xxxxxxx develop]$ php test.php 
+array(4) {
+  ["base"]=>
+  string(15) "狩野達也君"
+  ["hira"]=>
+  string(21) "かのたつやくん"
+  ["kata"]=>
+  string(21) "カノタツヤクン"
+  ["alph"]=>
+  string(14) "kanotatsuyakun"
+}
+array(3) {
+  [0]=>
+  string(6) "狩野"
+  [1]=>
+  string(6) "達也"
+  [2]=>
+  string(3) "君"
+}
+
+
