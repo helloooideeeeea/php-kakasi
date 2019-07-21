@@ -34,4 +34,6 @@ array(3) {
   string(3) "君"
 }
 
-
+How to Install
+Please check docker/Dockerfile
+Written there
